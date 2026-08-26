@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deckapp-mcp"
+version = "1.0.0"
+description = "MCP server for DeckApp, the Linux macro pad"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "prabhatm021" }]
+requires-python = ">=3.10"
+keywords = ["mcp", "model context protocol", "deckapp", "macro-pad", "linux"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "Topic :: Utilities",
+]
+
+# DeckApp itself is not on PyPI. Install it from
+# https://github.com/prabhatm021/deckapp and make sure `import deckapp` works.
+dependencies = ["fastmcp>=2"]
+
+[project.scripts]
+deckapp-mcp = "deckapp_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/prabhatm021/deckapp-mcp"
+DeckApp = "https://github.com/prabhatm021/deckapp"
+
+[tool.setuptools]
+packages = ["deckapp_mcp"]

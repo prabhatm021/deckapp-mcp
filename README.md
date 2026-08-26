@@ -1,11 +1,8 @@
 # deckapp-mcp
 
-An MCP server for [DeckApp](https://github.com/prabhatm021/deckapp), the Linux
-macro pad. It lets an assistant build decks, wire buttons to shell commands,
-press them and report what came back.
-
-It reads and writes the same deck files as the app, so it works whether or not
-DeckApp is open.
+MCP support for [DeckApp](https://github.com/prabhatm021/deckapp), so tools like
+Claude can build and run your decks. It works on the same deck files as the app,
+whether or not DeckApp is open.
 
 ## Requirements
 
@@ -28,7 +25,7 @@ Check it found DeckApp:
 .venv/bin/python -c "import deckapp; print(deckapp.__version__)"
 ```
 
-## Point a client at it
+## Connect it
 
 Claude Code:
 
@@ -36,7 +33,7 @@ Claude Code:
 claude mcp add deckapp -- /path/to/deckapp-mcp/.venv/bin/deckapp-mcp
 ```
 
-Any client that takes a JSON config:
+Claude Desktop, or any client with a JSON config:
 
 ```json
 {
@@ -48,48 +45,22 @@ Any client that takes a JSON config:
 }
 ```
 
-Use the full path. The venv's `deckapp-mcp` is what knows where DeckApp lives.
+Use the full path. The venv's `deckapp-mcp` is the one that knows where DeckApp
+lives.
 
-## What it can do
+## Tools
 
-Decks: `list_decks`, `get_deck`, `new_deck`, `rename_deck`, `resize_deck`,
-`remove_deck`, `duplicate_deck`, `set_deck_order`, `export_deck`, `import_deck`
+26 of them, covering the same ground as the app: create, rename, resize,
+duplicate, reorder and delete decks; add, edit, move and remove buttons; import
+icons; read and set toggle states; export and import a deck as JSON; open a deck
+window. Run `list_decks` first to see what ids you have.
 
-Buttons: `set_button`, `get_button`, `move_button`, `remove_button`,
-`clear_deck`, `find_buttons`, `press_button`
+There is also `press_button`, which runs a button's command and hands back the
+exit code and output. That makes it easy to check a deck works, and it means
+anything connected to this server can run whatever your decks run. It is shell
+access, so treat it that way.
 
-Toggles: `get_toggle_states`, `set_toggle_state`
-
-Icons: `add_icon`, `set_button_icon`, `list_icons`, `remove_unused_icons`
-
-The app: `open_deck_window`, `app_status`, `app_version`
-
-There are also two resources, `deckapp://decks` and `deckapp://deck/{id}`, which
-return the same data as JSON.
-
-Positions are zero indexed, so row 0 column 0 is the top left key.
-
-## A note on press_button
-
-`press_button` runs that button's command in a shell and hands back the exit
-code, stdout and stderr. That makes it easy to check a deck actually works, and
-it also means an assistant with access to this server can run anything your
-decks can run. Treat it the way you would treat giving something shell access,
-because that is what it is.
-
-## Example
-
-Asking an assistant for "a deck for my morning routine" gets you something like:
-
-```
-new_deck(name="Morning", rows=2, cols=3)
-set_button(deck_id="morning", row=0, col=0, label="Standup",
-           behavior="single", command="firefox https://meet.example.com/standup")
-set_button(deck_id="morning", row=0, col=1, label="Focus", behavior="toggle",
-           on_command="gsettings set org.gnome.desktop.notifications show-banners false",
-           off_command="gsettings set org.gnome.desktop.notifications show-banners true")
-press_button(deck_id="morning", row=0, col=0)
-```
+Positions are zero indexed, row 0 column 0 being the top left key.
 
 ## License
 

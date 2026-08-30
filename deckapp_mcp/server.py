@@ -95,6 +95,13 @@ def _button_summary(button) -> dict:
     return data
 
 
+def _free_keys(deck, limit: int = 6) -> str:
+    """A few empty positions, for error messages."""
+    free = [f"({r}, {c})" for r, c in deck.positions() if deck.get(r, c) is None]
+    shown = ", ".join(free[:limit])
+    return shown + (f" and {len(free) - limit} more" if len(free) > limit else "")
+
+
 def _check_position(deck, row: int, col: int):
     if not (0 <= row < deck.rows and 0 <= col < deck.cols):
         raise ValueError(
@@ -266,13 +273,26 @@ def set_button(
     off_command: Annotated[str, "For behavior='toggle'"] = "",
     state: Literal["off", "on"] = "off",
     icon: Annotated[Optional[str], "Relative asset path from import_icon"] = None,
+    overwrite: Annotated[bool, "Required to replace a key that is already in use"] = False,
 ) -> dict:
-    """Create or replace the button at a position.
+    """Put a button on an empty key.
+
+    Refuses to replace an existing button unless overwrite=True: a deck is
+    someone's work, and silently writing over a key they configured by hand
+    loses it for good.
 
     Commands are run through a shell exactly as typed in a terminal.
     """
     deck = _find_deck(deck_id)
     _check_position(deck, row, col)
+
+    existing = deck.get(row, col)
+    if existing is not None and not overwrite:
+        raise ValueError(
+            f"({row}, {col}) already holds “{existing.display_label()}”. "
+            f"Pass overwrite=True to replace it, or pick an empty key: "
+            f"{_free_keys(deck) or 'the deck is full'}."
+        )
 
     button = Button(
         row=row, col=col, label=label,
